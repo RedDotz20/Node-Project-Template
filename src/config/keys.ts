@@ -2,5 +2,6 @@ import 'dotenv/config';
 
 export default {
   mongoURI: process.env.MONGODB_URI ?? '',
-  secretOrKey: process.env.SECRET_KEY ?? '',
+  accessTokenSecret: process.env.ACCESS_TOKEN_SECRET ?? '',
+  refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET ?? '',
 };

@@ -1,8 +1,16 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import keys from '../config/keys';
 import User, { IUser } from '../models/user.model';
+
+const generateAccessToken = (user: IUser): string => {
+  return jwt.sign({ id: user.id, username: user.username }, keys.accessTokenSecret, { expiresIn: '15m' });
+};
+
+const generateRefreshToken = (user: IUser): string => {
+  return jwt.sign({ id: user.id, username: user.username }, keys.refreshTokenSecret, { expiresIn: '7d' });
+};
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -37,15 +45,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    if (isPasswordMatch) {
-      const payload = { id: user.id, username: user.username };
-      const token = jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
 
-      // Set the token in an HTTP-only cookie
-      res.cookie('jwtToken', token, { httpOnly: true });
+      // Set the tokens in HTTP-only cookies
+      res.cookie('accessToken', accessToken, { httpOnly: true });
+      res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 }); // 7 days
 
-      res.json({ success: true, token: `Bearer ${token}` });
+      res.json({ success: true, accessToken, refreshToken });
     } else {
       res.status(400).json({ error: 'Password incorrect' });
     }
@@ -56,7 +65,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const logout = async (req: Request, res: Response): Promise<void> => {
-  // Clear the JWT token cookie
-  res.clearCookie('jwtToken');
+  // Clear the tokens in HTTP-only cookies
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
   res.json({ success: true });
 };
