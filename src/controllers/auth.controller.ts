@@ -37,13 +37,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (isMatch) {
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (isPasswordMatch) {
       const payload = { id: user.id, username: user.username };
-      jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
-        if (err) throw err;
-        res.json({ success: true, token: `Bearer ${token}` });
-      });
+      const token = jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 });
+
+      // Set the token in an HTTP-only cookie
+      res.cookie('jwtToken', token, { httpOnly: true });
+
+      res.json({ success: true, token: `Bearer ${token}` });
     } else {
       res.status(400).json({ error: 'Password incorrect' });
     }
@@ -53,4 +55,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-//Note: Logout should handle in the client side
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  // Clear the JWT token cookie
+  res.clearCookie('jwtToken');
+  res.json({ success: true });
+};

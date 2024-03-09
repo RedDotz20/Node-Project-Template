@@ -4,10 +4,11 @@ import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
-// import middleware from './middleware';
+import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import authRoutes from './routes/auth.routes';
 import keys from './config/keys';
+// import middleware from './middleware';
 
 export const app: Application = express();
 
@@ -19,6 +20,9 @@ app.use(express.json());
 // Body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Cookie parser middleware
+app.use(cookieParser());
 
 // Define MongoDB connection options
 const mongooseOptions: mongoose.ConnectOptions = {
