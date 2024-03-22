@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import keys from '../config/keys';
+import keys from './keys.config';
 
 const verifyAccessToken = (accessToken: string): Promise<Record<string, any>> => {
   return new Promise((resolve, reject) => {
@@ -26,10 +26,10 @@ const verifyRefreshToken = (refreshToken: string): Promise<Record<string, any>> 
   });
 };
 
-export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const checkAccessToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Extract the access token from the Authorization header
-    const accessToken = req.headers.authorization?.split(' ')[1];
+    const accessToken = req.cookies.refreshToken;
 
     if (!accessToken) {
       return res.status(401).json({ error: 'Unauthorized - Access token missing' });

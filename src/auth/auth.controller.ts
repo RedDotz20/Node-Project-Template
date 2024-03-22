@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import keys from '../config/keys';
-import User, { IUser } from '../models/user.model';
+import keys from './keys.config';
+import User, { IUser } from './userAuth.model';
 
 const generateAccessToken = (user: IUser): string => {
   return jwt.sign({ id: user.id, username: user.username }, keys.accessTokenSecret, { expiresIn: '15m' });

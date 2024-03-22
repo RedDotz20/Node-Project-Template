@@ -6,15 +6,16 @@ import morgan from 'morgan';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import authRoutes from './routes/auth.routes';
-import keys from './config/keys';
-// import middleware from './middleware';
+import authRoutes from './auth/auth.routes';
+import keys from './auth/keys.config';
+import errorHandler from './config/errorHandler';
+import notFoundHandler from './config/notFoundHandler';
 
 export const app: Application = express();
 
 app.use(morgan('dev'));
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: ['http://localhost:5173', '*'], credentials: true }));
 app.use(express.json());
 
 // Body parser middleware
@@ -45,5 +46,5 @@ require('./middleware/auth.middleware');
 app.get('/', (req: Request, res: Response) => res.send('Hello World!'));
 app.use('/api/auth', authRoutes);
 
-// app.use(middleware.notFound);
-// app.use(middleware.errorHandler);
+app.use(notFoundHandler);
+app.use(errorHandler);
