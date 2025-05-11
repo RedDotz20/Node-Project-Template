@@ -3,11 +3,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
-import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import authRoutes from './routes/auth.routes';
-import keys from './config/keys';
+// import mongoose from 'mongoose';
+// import authRoutes from './routes/auth.routes';
+// import keys from './config/keys';
 // import middleware from './middleware';
 
 export const app: Application = express();
@@ -25,15 +25,15 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // Define MongoDB connection options
-const mongooseOptions: mongoose.ConnectOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-} as mongoose.ConnectOptions;
+// const mongooseOptions: mongoose.ConnectOptions = {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// } as mongoose.ConnectOptions;
 
-mongoose
-  .connect(keys.mongoURI, mongooseOptions)
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.log(err));
+// mongoose
+//   .connect(keys.mongoURI, mongooseOptions)
+//   .then(() => console.log('MongoDB connected'))
+//   .catch((err) => console.log(err));
 
 // Passport middleware
 app.use(passport.initialize());
@@ -42,8 +42,11 @@ app.use(passport.initialize());
 require('./middleware/auth.middleware');
 
 // Routes
-app.get('/', (req: Request, res: Response) => res.send('Hello World!'));
-app.use('/api/auth', authRoutes);
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'OK' });
+});
+
+// app.use('/api/auth', authRoutes);
 
 // app.use(middleware.notFound);
 // app.use(middleware.errorHandler);
